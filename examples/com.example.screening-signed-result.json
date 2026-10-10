@@ -1,0 +1,12 @@
+{
+  "payload": {
+    "checkout_id": "chk1",
+    "scope_hash": "8a1191096d8b73eddf5175c9f825482a8a3811bd1899c51c1f87be17cb92e301",
+    "policy_id": "com.example.screening-fixture-policy-v1",
+    "provider_id": "fixture-provider",
+    "task_id": "com.example.screening-1",
+    "expires": 200,
+    "outcome": "satisfied"
+  },
+  "signature": "MjSiEIxcj+Pr+DLH4RwhJ6de4IpAODB0JubqFTvs7dyQ0eczNDX6UAd93pZ4R4sIqNlTLF5WKtsOywksDr9pAA=="
+}

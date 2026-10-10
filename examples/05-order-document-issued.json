@@ -1,0 +1,74 @@
+{
+  "ucp": {
+    "version": "2026-10-09",
+    "status": "success",
+    "capabilities": {
+      "dev.ucp.shopping.order": [
+        {
+          "version": "2026-10-09"
+        }
+      ],
+      "com.example.fiscal_documents": [
+        {
+          "version": "2026-10-09"
+        }
+      ]
+    }
+  },
+  "id": "ord1",
+  "checkout_id": "chk1",
+  "permalink_url": "https://business.example/orders/ord1",
+  "line_items": [
+    {
+      "id": "li1",
+      "item": {
+        "id": "sku1",
+        "title": "Fixture goods",
+        "price": 1000
+      },
+      "quantity": {
+        "original": 1,
+        "total": 1,
+        "fulfilled": 0
+      },
+      "status": "processing",
+      "totals": [
+        {
+          "type": "subtotal",
+          "amount": 1000
+        },
+        {
+          "type": "total",
+          "amount": 1000
+        }
+      ]
+    }
+  ],
+  "fulfillment": {
+    "expectations": [],
+    "events": []
+  },
+  "currency": "MXN",
+  "totals": [
+    {
+      "type": "subtotal",
+      "amount": 1000
+    },
+    {
+      "type": "total",
+      "amount": 1000
+    }
+  ],
+  "com.example.fiscal_documents": {
+    "revision": 1,
+    "documents": [
+      {
+        "id": "doc1",
+        "state": "certified",
+        "format": "fixture-fiscal-xml",
+        "content_hash": "cc3b448f8a8aa9285abb701981bcfea7dc932c2483c54c9c187e343db93bc4aa",
+        "download_url": "https://business.example/documents/doc1"
+      }
+    ]
+  }
+}

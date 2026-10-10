@@ -1,0 +1,99 @@
+{
+  "ucp": {
+    "version": "2026-10-09",
+    "status": "success",
+    "capabilities": {
+      "dev.ucp.shopping.checkout": [
+        {
+          "version": "2026-10-09"
+        }
+      ],
+      "dev.ucp.shopping.order": [
+        {
+          "version": "2026-10-09"
+        }
+      ],
+      "com.example.screening": [
+        {
+          "version": "2026-10-09"
+        }
+      ],
+      "com.example.fiscal_documents": [
+        {
+          "version": "2026-10-09"
+        }
+      ]
+    },
+    "payment_handlers": {}
+  },
+  "id": "chk1",
+  "line_items": [
+    {
+      "id": "li1",
+      "item": {
+        "id": "sku1",
+        "title": "Fixture goods",
+        "price": 1000
+      },
+      "quantity": 1,
+      "totals": [
+        {
+          "type": "subtotal",
+          "amount": 1000
+        },
+        {
+          "type": "total",
+          "amount": 1000
+        }
+      ]
+    }
+  ],
+  "status": "incomplete",
+  "currency": "MXN",
+  "totals": [
+    {
+      "type": "subtotal",
+      "amount": 1000
+    },
+    {
+      "type": "total",
+      "amount": 1000
+    }
+  ],
+  "links": [],
+  "actions": {
+    "com.example.screening": [
+      {
+        "id": "com.example.screening-2",
+        "config": {
+          "checkout_id": "chk1",
+          "scope_hash": "8782712ce8ed20a9585f20825e8c7cde9b00c13392d199e6216db387957320ad",
+          "policy_id": "com.example.screening-fixture-policy-v1",
+          "provider_id": "fixture-provider",
+          "task_id": "com.example.screening-2"
+        }
+      }
+    ],
+    "com.example.fiscal_documents": [
+      {
+        "id": "com.example.fiscal_documents-2",
+        "config": {
+          "checkout_id": "chk1",
+          "scope_hash": "8782712ce8ed20a9585f20825e8c7cde9b00c13392d199e6216db387957320ad",
+          "policy_id": "com.example.fiscal_documents-fixture-policy-v1",
+          "provider_id": "fixture-provider",
+          "task_id": "com.example.fiscal_documents-2"
+        }
+      }
+    ]
+  },
+  "messages": [
+    {
+      "type": "error",
+      "code": "com.example.verification_pending",
+      "severity": "recoverable",
+      "content": "Required verification is outstanding.",
+      "path": "$.actions['com.example.screening'][0]"
+    }
+  ]
+}

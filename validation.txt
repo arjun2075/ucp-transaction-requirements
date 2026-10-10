@@ -1,0 +1,28 @@
+test_conflicting_revision_rejected (test_integration.IntegrationTests.test_conflicting_revision_rejected) ... ok
+test_declarations_valid_against_upstream (test_integration.IntegrationTests.test_declarations_valid_against_upstream) ... ok
+test_denial_and_pending_do_not_complete (test_integration.IntegrationTests.test_denial_and_pending_do_not_complete) ... ok
+test_destination_change_invalidates_evidence (test_integration.IntegrationTests.test_destination_change_invalidates_evidence) ... ok
+test_duplicate_and_stale_delivery (test_integration.IntegrationTests.test_duplicate_and_stale_delivery) ... ok
+test_exact_version_mismatch_preserves_required_block (test_integration.IntegrationTests.test_exact_version_mismatch_preserves_required_block) ... ok
+test_expiry_rechecked_at_complete (test_integration.IntegrationTests.test_expiry_rechecked_at_complete) ... ok
+test_extension_rejects_malformed_config_base_accepts_it (test_integration.IntegrationTests.test_extension_rejects_malformed_config_base_accepts_it) ... ok
+test_fiscal_document_delivery_cancel_replace (test_integration.IntegrationTests.test_fiscal_document_delivery_cancel_replace) ... ok
+test_fiscal_document_hash_matches_fixture_bytes (test_integration.IntegrationTests.test_fiscal_document_hash_matches_fixture_bytes) ... ok
+test_issued_document_must_match_certification_evidence (test_integration.IntegrationTests.test_issued_document_must_match_certification_evidence) ... ok
+test_multiparent_survives_one_parent (test_integration.IntegrationTests.test_multiparent_survives_one_parent) ... ok
+test_orphan_extensions_pruned (test_integration.IntegrationTests.test_orphan_extensions_pruned) ... ok
+test_payer_change_invalidates_evidence (test_integration.IntegrationTests.test_payer_change_invalidates_evidence) ... ok
+test_pending_actions_and_failed_complete_schema_valid (test_integration.IntegrationTests.test_pending_actions_and_failed_complete_schema_valid) ... ok
+test_provider_result_not_checkout_state (test_integration.IntegrationTests.test_provider_result_not_checkout_state) ... ok
+test_replacement_requires_canceled_original_fixture_rule (test_integration.IntegrationTests.test_replacement_requires_canceled_original_fixture_rule) ... ok
+test_signed_results_complete_checkout (test_integration.IntegrationTests.test_signed_results_complete_checkout) ... ok
+test_tampered_signed_result_rejected (test_integration.IntegrationTests.test_tampered_signed_result_rejected) ... ok
+test_untrusted_provider_rejected (test_integration.IntegrationTests.test_untrusted_provider_rejected) ... ok
+test_upstream_rejects_invalid_total (test_integration.IntegrationTests.test_upstream_rejects_invalid_total) ... ok
+test_wrong_business_rejected (test_integration.IntegrationTests.test_wrong_business_rejected) ... ok
+test_wrong_task_rejected (test_integration.IntegrationTests.test_wrong_task_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 0.178s
+
+OK

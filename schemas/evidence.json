@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/evidence.json",
+  "type": "object",
+  "required": [
+    "payload",
+    "signature"
+  ],
+  "properties": {
+    "signature": {
+      "type": "string",
+      "minLength": 1
+    },
+    "payload": {
+      "type": "object",
+      "required": [
+        "checkout_id",
+        "scope_hash",
+        "policy_id",
+        "provider_id",
+        "task_id",
+        "expires",
+        "outcome"
+      ],
+      "properties": {
+        "checkout_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scope_hash": {
+          "type": "string",
+          "minLength": 1
+        },
+        "policy_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provider_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "task_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "expires": {
+          "type": "integer"
+        },
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "satisfied",
+            "pending",
+            "denied"
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "ucp": {
+    "version": "2026-10-09",
+    "status": "success",
+    "capabilities": {
+      "dev.ucp.shopping.checkout": [
+        {
+          "version": "2026-10-09"
+        }
+      ],
+      "dev.ucp.shopping.order": [
+        {
+          "version": "2026-10-09"
+        }
+      ],
+      "com.example.screening": [
+        {
+          "version": "2026-10-09"
+        }
+      ],
+      "com.example.fiscal_documents": [
+        {
+          "version": "2026-10-09"
+        }
+      ]
+    },
+    "payment_handlers": {}
+  },
+  "id": "chk1",
+  "line_items": [
+    {
+      "id": "li1",
+      "item": {
+        "id": "sku1",
+        "title": "Fixture goods",
+        "price": 1000
+      },
+      "quantity": 1,
+      "totals": [
+        {
+          "type": "subtotal",
+          "amount": 1000
+        },
+        {
+          "type": "total",
+          "amount": 1000
+        }
+      ]
+    }
+  ],
+  "status": "ready_for_complete",
+  "currency": "MXN",
+  "totals": [
+    {
+      "type": "subtotal",
+      "amount": 1000
+    },
+    {
+      "type": "total",
+      "amount": 1000
+    }
+  ],
+  "links": []
+}

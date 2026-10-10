@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/checkout-composed.json",
+  "allOf": [
+    {
+      "$ref": "https://example.com/schemas/com.example.screening.json#/$defs/dev.ucp.shopping.checkout"
+    },
+    {
+      "$ref": "https://example.com/schemas/com.example.fiscal_documents.json#/$defs/dev.ucp.shopping.checkout"
+    }
+  ]
+}

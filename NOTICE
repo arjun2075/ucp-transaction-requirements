@@ -1,0 +1,5 @@
+This prototype includes unchanged JSON schemas from Universal Commerce Protocol
+revision ad9950ba5c7bcd02af648f849bf7344052f76f57.
+Upstream source: https://github.com/Universal-Commerce-Protocol/ucp
+Copyright 2026 UCP Authors. Licensed under Apache License 2.0.
+Experimental integration code and extension schemas: Copyright 2026 Arjun Garg.

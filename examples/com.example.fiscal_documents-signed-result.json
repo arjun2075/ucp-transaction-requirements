@@ -1,0 +1,14 @@
+{
+  "payload": {
+    "checkout_id": "chk1",
+    "scope_hash": "8a1191096d8b73eddf5175c9f825482a8a3811bd1899c51c1f87be17cb92e301",
+    "policy_id": "com.example.fiscal_documents-fixture-policy-v1",
+    "provider_id": "fixture-provider",
+    "task_id": "com.example.fiscal_documents-1",
+    "expires": 200,
+    "outcome": "satisfied",
+    "document_id": "doc1",
+    "document_hash": "cc3b448f8a8aa9285abb701981bcfea7dc932c2483c54c9c187e343db93bc4aa"
+  },
+  "signature": "41DaRRfBG40Af9heg4wWt1Kv9Xf8Fn0uiRN01L8bgZ4l5L7KGQZut4aC9SXza0qZwxaJn749JOysvx1nCsQ5AA=="
+}
