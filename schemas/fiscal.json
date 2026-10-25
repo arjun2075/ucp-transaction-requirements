@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.com/schemas/com.example.fiscal_documents.json",
   "name": "com.example.fiscal_documents",
-  "version": "2026-10-09",
+  "version": "2026-10-23",
   "title": "com.example.fiscal_documents experimental extension",
   "description": "Unpublished reference contract; not an official UCP extension.",
   "$defs": {
@@ -89,12 +89,13 @@
               "type": "object",
               "required": [
                 "revision",
-                "documents"
+                "documents",
+                "events"
               ],
               "properties": {
                 "revision": {
                   "type": "integer",
-                  "minimum": 1
+                  "minimum": 0
                 },
                 "documents": {
                   "type": "array",
@@ -103,9 +104,12 @@
                     "required": [
                       "id",
                       "state",
-                      "format",
+                      "document_type",
+                      "jurisdiction",
+                      "media_type",
                       "content_hash",
-                      "download_url"
+                      "retrieval_url",
+                      "issued_at"
                     ],
                     "properties": {
                       "id": {
@@ -115,24 +119,50 @@
                       "state": {
                         "type": "string",
                         "enum": [
-                          "certified",
+                          "issued",
                           "canceled"
                         ]
                       },
-                      "format": {
-                        "type": "string"
+                      "document_type": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "jurisdiction": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "media_type": {
+                        "type": "string",
+                        "minLength": 1
                       },
                       "content_hash": {
                         "type": "string",
                         "pattern": "^[a-f0-9]{64}$"
                       },
-                      "download_url": {
+                      "retrieval_url": {
                         "type": "string",
                         "format": "uri"
+                      },
+                      "issued_at": {
+                        "type": "string",
+                        "format": "date-time"
                       },
                       "replaces": {
                         "type": "string"
                       }
+                    }
+                  }
+                },
+                "events": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["id", "type", "occurred_at", "document_id"],
+                    "properties": {
+                      "id": {"type": "string", "minLength": 1},
+                      "type": {"type": "string", "enum": ["issue", "cancel", "replace"]},
+                      "occurred_at": {"type": "string", "format": "date-time"},
+                      "document_id": {"type": "string", "minLength": 1}
                     }
                   }
                 }

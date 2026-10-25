@@ -85,7 +85,7 @@ class IntegrationTests(unittest.TestCase):
     def test_fiscal_document_delivery_cancel_replace(self):
         issued,canceled,replaced=self.snapshots()
         self.assertEqual([x[F]['revision'] for x in [issued,canceled,replaced]],[1,2,3])
-        self.assertEqual(issued[F]['documents'][0]['state'],'certified')
+        self.assertEqual(issued[F]['documents'][0]['state'],'issued')
         self.assertEqual(canceled[F]['documents'][0]['state'],'canceled')
         self.assertEqual(replaced[F]['documents'][1]['replaces'],'doc1')
         self.assertEqual(replaced['line_items'][0]['status'],'processing')

@@ -1,0 +1,54 @@
+Validation record — fiscal-document lifecycle v0.3
+Run date: 2026-10-24 America/Los_Angeles
+
+Reference repository base
+  arjun2075/ucp-transaction-requirements
+  c81179fed0e61e68aba9ea6beead2404f625ba03
+
+Pinned upstream schema source
+  Universal-Commerce-Protocol/ucp main
+  ba9795a6a1c55dc98ec50032cc124a77fba16750
+  137 JSON schema files copied unchanged from source/schemas/
+
+Environment reproduction
+  Command: python3 -m unittest -v test_integration test_fiscal_ledger
+  Outcome: FAILED before collection; ModuleNotFoundError: jsonschema
+  Reason: clean environment did not have repository dependencies installed.
+
+  Command: python3 -m venv .venv
+  Outcome: PASS
+
+  Command: .venv/bin/pip install -r requirements.txt
+  Outcome: PASS; installed jsonschema 4.26.0, referencing 0.37.0,
+           cryptography 50.0.2 and transitive dependencies.
+
+Executed checks
+  Command: .venv/bin/python -m unittest -v test_integration test_fiscal_ledger
+  Outcome: PASS; 36 tests in 0.356s.
+
+  Command: .venv/bin/python generate_examples.py
+  Outcome: PASS; generated and schema-validated Checkout and Order examples,
+           including durable issue/cancel/replace snapshots.
+
+  Command: .venv/bin/python -m compileall -q integration.py fiscal_ledger.py schema_support.py generate_examples.py test_integration.py test_fiscal_ledger.py
+  Outcome: PASS.
+
+  Command: git diff --check
+  Outcome: PASS.
+
+  Command: local SHA-256 comparison of upstream/schemas/**/*.json against upstream-schema-sha256.json
+  Outcome: PASS; all 137 vendored schema files matched.
+
+Not run
+  Command attempted: cargo install ucp-schema
+  Outcome: BLOCKED; /bin/bash: cargo: command not found.
+  Therefore the official Rust ucp-schema resolver/linter was not run. The tests
+  use JSON Schema Draft 2020-12 and the unchanged current upstream source
+  schemas; no claim is made for ucp-schema direction-annotation or resolver
+  validation.
+
+Boundaries
+  No live tax authority, SAT/PAC, screening provider, production credential,
+  HTTP authentication, deployment, or legal-compliance validation was used.
+  Authenticated identities are supplied by an in-process transport boundary and
+  tested for enforcement; a production transport must establish those identities.
