@@ -1,26 +1,26 @@
 {
   "ucp": {
-    "version": "2026-10-09",
+    "version": "2026-10-23",
     "status": "success",
     "capabilities": {
       "dev.ucp.shopping.checkout": [
         {
-          "version": "2026-10-09"
+          "version": "2026-10-23"
         }
       ],
       "dev.ucp.shopping.order": [
         {
-          "version": "2026-10-09"
+          "version": "2026-10-23"
         }
       ],
       "com.example.screening": [
         {
-          "version": "2026-10-09"
+          "version": "2026-10-23"
         }
       ],
       "com.example.fiscal_documents": [
         {
-          "version": "2026-10-09"
+          "version": "2026-10-23"
         }
       ]
     },

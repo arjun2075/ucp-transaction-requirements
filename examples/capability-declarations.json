@@ -1,21 +1,21 @@
 {
   "dev.ucp.shopping.checkout": [
     {
-      "version": "2026-10-09",
+      "version": "2026-10-23",
       "spec": "https://example.com/spec/dev.ucp.shopping.checkout",
       "schema": "https://example.com/schemas/dev.ucp.shopping.checkout.json"
     }
   ],
   "dev.ucp.shopping.order": [
     {
-      "version": "2026-10-09",
+      "version": "2026-10-23",
       "spec": "https://example.com/spec/dev.ucp.shopping.order",
       "schema": "https://example.com/schemas/dev.ucp.shopping.order.json"
     }
   ],
   "com.example.screening": [
     {
-      "version": "2026-10-09",
+      "version": "2026-10-23",
       "spec": "https://example.com/spec/com.example.screening",
       "schema": "https://example.com/schemas/com.example.screening.json",
       "extends": "dev.ucp.shopping.checkout"
@@ -23,7 +23,7 @@
   ],
   "com.example.fiscal_documents": [
     {
-      "version": "2026-10-09",
+      "version": "2026-10-23",
       "spec": "https://example.com/spec/com.example.fiscal_documents",
       "schema": "https://example.com/schemas/com.example.fiscal_documents.json",
       "extends": [

@@ -3,44 +3,20 @@ import base64
 from copy import deepcopy
 import hashlib
 import json
-from pathlib import Path
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
-from jsonschema import Draft202012Validator, FormatChecker
-from referencing import Registry, Resource
+from schema_support import REGISTRY, ROOT, validate, validate_declarations
 
-ROOT=Path(__file__).parent
 S='com.example.screening'
 F='com.example.fiscal_documents'
 C='dev.ucp.shopping.checkout'
 O='dev.ucp.shopping.order'
-V='2026-10-09'  # Fixture metadata date, not a certified UCP release assertion.
+V='2026-10-23'  # Fixture metadata date, not a certified UCP release assertion.
 
 def canonical(value):
     return json.dumps(value,sort_keys=True,separators=(',',':')).encode()
 
 def fixture_xml(id):
     return f'<FixtureFiscalDocument id="{id}" notice="NOT A CFDI"/>'.encode()
-
-def registry():
-    resources=[]
-    for base in [ROOT/'upstream/schemas',ROOT/'schemas']:
-        for p in base.rglob('*.json'):
-            data=json.loads(p.read_text())
-            if '$id' in data:
-                resources.append((data['$id'],Resource.from_contents(data)))
-    return Registry().with_resources(resources)
-
-REGISTRY=registry()
-
-def validate(payload,name):
-    schema=json.loads((ROOT/'schemas'/name).read_text())
-    Draft202012Validator(schema,registry=REGISTRY,format_checker=FormatChecker()).validate(payload)
-
-def validate_declarations(profile,kind):
-    uri=f'https://ucp.dev/schemas/capability.json#/$defs/{kind}_schema'
-    validator=Draft202012Validator({'$ref':uri},registry=REGISTRY,format_checker=FormatChecker())
-    for entries in profile.values():
-        for entry in entries: validator.validate(entry)
 
 def profile():
     names={C:None,O:None,S:C,F:[C,O]}
@@ -96,6 +72,7 @@ class Business:
         self.task_revision=1
         self.state='incomplete'
         self.documents=[]
+        self.document_events=[]
         self.doc_revision=0
     def config(self,kind):
         return {'checkout_id':'chk1','scope_hash':hashlib.sha256(canonical(self.facts)).hexdigest(),
@@ -166,18 +143,24 @@ class Business:
         if replaces:
             old=next(x for x in self.documents if x['id']==replaces)
             if old['state']!='canceled': raise ValueError('Fixture requires accepted cancellation first')
-        doc={'id':id,'state':'certified','format':'fixture-fiscal-xml',
+        doc={'id':id,'state':'issued','document_type':'fixture-fiscal-document',
+             'jurisdiction':'MX','media_type':'application/xml','issued_at':'2026-10-24T18:00:00Z',
              'content_hash':hashlib.sha256(fixture_xml(id)).hexdigest(),
-             'download_url':f'https://business.example/documents/{id}'}
+             'retrieval_url':f'https://business.example/documents/{id}'}
         if replaces: doc['replaces']=replaces
         self.documents.append(doc)
         self.doc_revision+=1
+        self.document_events.append({'id':f'doc-event-{self.doc_revision}',
+                                     'type':'replace' if replaces else 'issue',
+                                     'occurred_at':'2026-10-24T18:00:00Z','document_id':id})
         return self.order()
     def cancel_document(self,id):
         doc=next(x for x in self.documents if x['id']==id)
         if doc['state']!='canceled':
             doc['state']='canceled'
             self.doc_revision+=1
+            self.document_events.append({'id':f'doc-event-{self.doc_revision}','type':'cancel',
+                                         'occurred_at':'2026-10-24T18:00:00Z','document_id':id})
         return self.order()
     def order(self):
         out={'ucp':{'version':V,'status':'success','capabilities':{
@@ -186,7 +169,8 @@ class Business:
             'line_items':[{'id':'li1','item':deepcopy(ITEM),
                 'quantity':{'original':1,'total':1,'fulfilled':0},'status':'processing','totals':deepcopy(TOTALS)}],
             'fulfillment':{'expectations':[],'events':[]},'currency':'MXN','totals':deepcopy(TOTALS),
-            F:{'revision':self.doc_revision,'documents':deepcopy(self.documents)}}
+            F:{'revision':self.doc_revision,'documents':deepcopy(self.documents),
+               'events':deepcopy(self.document_events)}}
         validate(out,'order-composed.json')
         return out
 

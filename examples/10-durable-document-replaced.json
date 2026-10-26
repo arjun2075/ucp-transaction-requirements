@@ -1,0 +1,108 @@
+{
+  "ucp": {
+    "version": "2026-10-23",
+    "status": "success",
+    "capabilities": {
+      "dev.ucp.shopping.order": [
+        {
+          "version": "2026-10-23"
+        }
+      ],
+      "com.example.fiscal_documents": [
+        {
+          "version": "2026-10-23"
+        }
+      ]
+    }
+  },
+  "id": "ord-durable",
+  "checkout_id": "chk-durable",
+  "permalink_url": "https://business.example/orders/ord-durable",
+  "line_items": [
+    {
+      "id": "li1",
+      "item": {
+        "id": "sku1",
+        "title": "Fixture goods",
+        "price": 1000
+      },
+      "quantity": {
+        "original": 1,
+        "total": 1,
+        "fulfilled": 0
+      },
+      "status": "processing",
+      "totals": [
+        {
+          "type": "subtotal",
+          "amount": 1000
+        },
+        {
+          "type": "total",
+          "amount": 1000
+        }
+      ]
+    }
+  ],
+  "fulfillment": {
+    "expectations": [],
+    "events": []
+  },
+  "currency": "MXN",
+  "totals": [
+    {
+      "type": "subtotal",
+      "amount": 1000
+    },
+    {
+      "type": "total",
+      "amount": 1000
+    }
+  ],
+  "com.example.fiscal_documents": {
+    "revision": 3,
+    "documents": [
+      {
+        "state": "canceled",
+        "document_type": "fixture-fiscal-document",
+        "jurisdiction": "MX",
+        "media_type": "application/xml",
+        "content_hash": "cc3b448f8a8aa9285abb701981bcfea7dc932c2483c54c9c187e343db93bc4aa",
+        "retrieval_url": "https://business.example/documents/doc1",
+        "issued_at": "2026-10-24T18:00:00Z",
+        "id": "doc1"
+      },
+      {
+        "state": "issued",
+        "document_type": "fixture-fiscal-document",
+        "jurisdiction": "MX",
+        "media_type": "application/xml",
+        "content_hash": "eadfd01aac1b10358417b56e6ea08bd28069b4a536c467654af5b657a62b9aed",
+        "retrieval_url": "https://business.example/documents/doc2",
+        "issued_at": "2026-10-24T18:00:00Z",
+        "replaces": "doc1",
+        "id": "doc2"
+      }
+    ],
+    "events": [
+      {
+        "id": "evt-issue",
+        "type": "issue",
+        "occurred_at": "2026-10-24T18:00:00Z",
+        "document_id": "doc1"
+      },
+      {
+        "id": "evt-cancel",
+        "type": "cancel",
+        "occurred_at": "2026-10-24T18:05:00Z",
+        "document_id": "doc1"
+      },
+      {
+        "id": "evt-replace",
+        "type": "replace",
+        "occurred_at": "2026-10-24T18:10:00Z",
+        "document_id": "doc2"
+      }
+    ]
+  }
+}

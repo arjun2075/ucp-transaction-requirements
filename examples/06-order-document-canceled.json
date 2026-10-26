@@ -1,16 +1,16 @@
 {
   "ucp": {
-    "version": "2026-10-09",
+    "version": "2026-10-23",
     "status": "success",
     "capabilities": {
       "dev.ucp.shopping.order": [
         {
-          "version": "2026-10-09"
+          "version": "2026-10-23"
         }
       ],
       "com.example.fiscal_documents": [
         {
-          "version": "2026-10-09"
+          "version": "2026-10-23"
         }
       ]
     }
@@ -65,9 +65,26 @@
       {
         "id": "doc1",
         "state": "canceled",
-        "format": "fixture-fiscal-xml",
+        "document_type": "fixture-fiscal-document",
+        "jurisdiction": "MX",
+        "media_type": "application/xml",
+        "issued_at": "2026-10-24T18:00:00Z",
         "content_hash": "cc3b448f8a8aa9285abb701981bcfea7dc932c2483c54c9c187e343db93bc4aa",
-        "download_url": "https://business.example/documents/doc1"
+        "retrieval_url": "https://business.example/documents/doc1"
+      }
+    ],
+    "events": [
+      {
+        "id": "doc-event-1",
+        "type": "issue",
+        "occurred_at": "2026-10-24T18:00:00Z",
+        "document_id": "doc1"
+      },
+      {
+        "id": "doc-event-2",
+        "type": "cancel",
+        "occurred_at": "2026-10-24T18:00:00Z",
+        "document_id": "doc1"
       }
     ]
   }
