@@ -149,6 +149,40 @@
                       },
                       "replaces": {
                         "type": "string"
+                      },
+                      "invoice_number": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Business-supplied fiscal number."
+                      },
+                      "adjustment_id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Document-to-Order adjustment correlation; never an authorization or certification claim."
+                      },
+                      "preceding_documents": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "invoice_number"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "invoice_number": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "issue_date": {
+                              "type": "string",
+                              "format": "date"
+                            },
+                            "document_id": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        }
                       }
                     }
                   }
@@ -157,12 +191,33 @@
                   "type": "array",
                   "items": {
                     "type": "object",
-                    "required": ["id", "type", "occurred_at", "document_id"],
+                    "required": [
+                      "id",
+                      "type",
+                      "occurred_at",
+                      "document_id"
+                    ],
                     "properties": {
-                      "id": {"type": "string", "minLength": 1},
-                      "type": {"type": "string", "enum": ["issue", "cancel", "replace"]},
-                      "occurred_at": {"type": "string", "format": "date-time"},
-                      "document_id": {"type": "string", "minLength": 1}
+                      "id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "issue",
+                          "cancel",
+                          "replace"
+                        ]
+                      },
+                      "occurred_at": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "document_id": {
+                        "type": "string",
+                        "minLength": 1
+                      }
                     }
                   }
                 }

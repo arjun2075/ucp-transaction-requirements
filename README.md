@@ -99,3 +99,17 @@ For post-order documents, a namespaced Order extension carries delivery, cancell
 Would a reference integration note using this scope be useful? Is there existing fiscal-document work we should align with, particularly around document identifiers, lifecycle updates and mandatory-workflow fallback? I am not claiming a protocol bypass or proposing a general legal-rule engine.
 
 No public comment or PR has been posted. This investigation relates to #926; #925's FX-guarantee question remains separate.
+
+## Reviewer alignment — immutable correction path
+
+The original v0.3 cancellation fixture remains explicitly non-normative.
+The new correction scenario issues a **separate** credit-note document
+without canceling or mutating the original, with optional
+`preceding_documents` and outbound `adjustment_id` metadata. The
+Business-owned Order adjustment is not required to have a fiscal document;
+more than one fiscal document can correlate to the same adjustment.
+No reverse reference or new UCP Core fields are needed. See
+[docs/fiscal-lifecycle.md](docs/fiscal-lifecycle.md).
+
+The earlier 36-test validation log predates this addition. The new tests
+are provided as reproducible source, not claimed as executed until verified.

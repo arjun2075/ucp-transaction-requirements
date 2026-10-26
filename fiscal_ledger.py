@@ -95,8 +95,16 @@ class FiscalDocumentLedger:
                     retrieval_url TEXT NOT NULL,
                     issued_at TEXT NOT NULL,
                     replaces TEXT,
+                    invoice_number TEXT,
+                    adjustment_id TEXT,
+                    preceding_documents_json TEXT NOT NULL DEFAULT '[]',
                     content BLOB NOT NULL,
                     PRIMARY KEY (order_id, document_id),
+                    FOREIGN KEY (order_id) REFERENCES ledger(order_id)
+                );
+                CREATE TABLE IF NOT EXISTS order_adjustments (
+                    order_id TEXT PRIMARY KEY,
+                    content_json TEXT NOT NULL,
                     FOREIGN KEY (order_id) REFERENCES ledger(order_id)
                 );
                 CREATE TABLE IF NOT EXISTS events (
@@ -164,6 +172,17 @@ class FiscalDocumentLedger:
                     f"expected revision {event['expected_revision']}, current revision is {ledger['revision']}"
                 )
 
+            if "order_adjustments" in event:
+                adjustments = event["order_adjustments"]
+                if not isinstance(adjustments, list) or any(not isinstance(a, dict) for a in adjustments):
+                    raise FiscalLedgerError("order_adjustments must be an array")
+                identifiers = [a.get("id") for a in adjustments]
+                if any(not isinstance(v, str) or not v for v in identifiers) or len(set(identifiers)) != len(identifiers):
+                    raise FiscalLedgerError("adjustment IDs must be present and distinct")
+                connection.execute(
+                    "INSERT OR REPLACE INTO order_adjustments VALUES (?, ?)",
+                    (self.order_id, json.dumps(adjustments, sort_keys=True)),
+                )
             if event["type"] == "issue":
                 self._issue(connection, event["document"], content)
                 document_id = event["document"]["id"]
@@ -238,15 +257,60 @@ class FiscalDocumentLedger:
                 raise FiscalLedgerError("replacement requires replaces")
             if event["type"] == "issue" and document.get("replaces"):
                 raise FiscalLedgerError("issue cannot carry replaces")
+            for field in ("invoice_number", "adjustment_id"):
+                if field in document and (not isinstance(document[field], str) or not document[field]):
+                    raise FiscalLedgerError(f"{field} must be nonempty")
+            refs = document.get("preceding_documents", [])
+            if not isinstance(refs, list):
+                raise FiscalLedgerError("preceding_documents must be an array")
+            seen = set()
+            for ref in refs:
+                if not isinstance(ref, dict) or not isinstance(ref.get("invoice_number"), str) or not ref["invoice_number"]:
+                    raise FiscalLedgerError("preceding invoice_number is required")
+                if set(ref) - {"invoice_number", "issue_date", "document_id"}:
+                    raise FiscalLedgerError("unrecognized preceding document reference field")
+                if "document_id" in ref and (not isinstance(ref["document_id"], str) or not ref["document_id"]):
+                    raise FiscalLedgerError("invalid preceding document_id")
+                if "issue_date" in ref:
+                    try:
+                        if not isinstance(ref["issue_date"], str) or datetime.strptime(ref["issue_date"], "%Y-%m-%d").strftime("%Y-%m-%d") != ref["issue_date"]:
+                            raise ValueError("bad date")
+                    except ValueError as error:
+                        raise FiscalLedgerError("preceding issue_date must be YYYY-MM-DD") from error
+                key = (ref["invoice_number"], ref.get("issue_date"), ref.get("document_id"))
+                if key in seen:
+                    raise FiscalLedgerError("duplicate preceding-document reference")
+                seen.add(key)
 
     def _issue(self, connection: sqlite3.Connection, document: dict[str, Any], content: bytes) -> None:
+        if document.get("adjustment_id"):
+            row = connection.execute(
+                "SELECT content_json FROM order_adjustments WHERE order_id = ?", (self.order_id,),
+            ).fetchone()
+            adjustments = json.loads(row["content_json"]) if row else []
+            if not any(a["id"] == document["adjustment_id"] for a in adjustments):
+                raise FiscalLedgerError("unknown Order adjustment")
+        for reference in document.get("preceding_documents", []):
+            if reference.get("document_id"):
+                row = connection.execute(
+                    "SELECT invoice_number FROM documents WHERE order_id = ? AND document_id = ?",
+                    (self.order_id, reference["document_id"]),
+                ).fetchone()
+                if not row or row["invoice_number"] != reference["invoice_number"]:
+                    raise FiscalLedgerError("preceding local invoice reference mismatch")
         try:
             connection.execute(
-                "INSERT INTO documents VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                """INSERT INTO documents
+                  (order_id, document_id, state, document_type, jurisdiction, media_type,
+                   content_hash, retrieval_url, issued_at, replaces, invoice_number,
+                   adjustment_id, preceding_documents_json, content)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                 (
                     self.order_id, document["id"], "issued", document["document_type"],
                     document["jurisdiction"], document["media_type"], document["content_hash"],
-                    document["retrieval_url"], document["issued_at"], document.get("replaces"), content,
+                    document["retrieval_url"], document["issued_at"], document.get("replaces"),
+                    document.get("invoice_number"), document.get("adjustment_id"),
+                    json.dumps(document.get("preceding_documents", []), sort_keys=True), content,
                 ),
             )
         except sqlite3.IntegrityError as error:
@@ -256,19 +320,27 @@ class FiscalDocumentLedger:
         ledger = connection.execute(
             "SELECT revision FROM ledger WHERE order_id = ?", (self.order_id,)
         ).fetchone()
-        documents = [
-            {key: row[key] for key in (
-                "document_id", "state", "document_type", "jurisdiction", "media_type",
+        documents = []
+        for row in connection.execute(
+            "SELECT document_id, state, document_type, jurisdiction, media_type, "
+            "content_hash, retrieval_url, issued_at, replaces, invoice_number, "
+            "adjustment_id, preceding_documents_json "
+            "FROM documents WHERE order_id = ? ORDER BY rowid", (self.order_id,),
+        ):
+            document = {key: row[key] for key in (
+                "state", "document_type", "jurisdiction", "media_type",
                 "content_hash", "retrieval_url", "issued_at", "replaces",
+                "invoice_number", "adjustment_id",
             ) if row[key] is not None}
-            for row in connection.execute(
-                "SELECT document_id, state, document_type, jurisdiction, media_type, "
-                "content_hash, retrieval_url, issued_at, replaces FROM documents "
-                "WHERE order_id = ? ORDER BY rowid", (self.order_id,),
-            )
-        ]
-        for document in documents:
-            document["id"] = document.pop("document_id")
+            document["id"] = row["document_id"]
+            preceding = json.loads(row["preceding_documents_json"])
+            if preceding:
+                document["preceding_documents"] = preceding
+            documents.append(document)
+        adjustments_row = connection.execute(
+            "SELECT content_json FROM order_adjustments WHERE order_id = ?", (self.order_id,),
+        ).fetchone()
+        adjustments = json.loads(adjustments_row["content_json"]) if adjustments_row else []
         events = [dict(row) for row in connection.execute(
             "SELECT event_id AS id, event_type AS type, occurred_at, document_id "
             "FROM events WHERE order_id = ? ORDER BY revision", (self.order_id,),
@@ -288,14 +360,18 @@ class FiscalDocumentLedger:
                 "totals": [{"type": "subtotal", "amount": 1000}, {"type": "total", "amount": 1000}],
             }],
             "fulfillment": {"expectations": [], "events": []},
+            "adjustments": adjustments,
             "currency": "MXN",
             "totals": [{"type": "subtotal", "amount": 1000}, {"type": "total", "amount": 1000}],
             F: {"revision": ledger["revision"], "documents": documents, "events": events},
         }
 
-    def snapshot(self) -> dict[str, Any]:
+    def snapshot(self, *, order_adjustments: list[dict] | None = None) -> dict[str, Any]:
+        """An authoritative Core-only Order update need not change fiscal revision."""
         with self._connect() as connection:
             snapshot = self._snapshot(connection)
+        if order_adjustments is not None:
+            snapshot["adjustments"] = deepcopy(order_adjustments)
         validate(snapshot, "order-composed.json")
         return snapshot
 

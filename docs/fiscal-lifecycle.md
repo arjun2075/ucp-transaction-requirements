@@ -86,3 +86,34 @@ race, cancel/replace history, invalid replacement order, authenticated retrieval
 and strict UTC time.
 `test_integration.py` continues to cover schema composition and complete Order
 snapshot consumption against the pinned upstream schema set.
+
+## Correction-document reference path (reviewer-aligned increment)
+
+The preferred portable correction path issues **new** documents, without
+altering the original invoice's identity or bytes. An original invoice may
+have no Order adjustment. A new credit-note document has its own ID and may
+include `preceding_documents` with a prior invoice number and optional date;
+when referencing a local prior document, `document_id` must resolve and its
+invoice number must match. A document may carry an **outbound** `adjustment_id`
+to an existing Core Order adjustment; the Core adjustment does not refer back
+to the document. Multiple documents can reference one adjustment, while some
+adjustments require no document.
+
+The Business supplies its current authoritative `order_adjustments` when
+issuing documents in the fixture. This adapter validates correlation only;
+the reference does not certify tax effect or prove an adjustment is final.
+Core adjustments may change independently, including without a fiscal
+revision increment. UCP explicitly permits some adjustments to update in
+place; a reference is not immutable authorization evidence.
+
+The earlier `cancel` and `replace` event operations remain **legacy,
+non-normative local workflow simulation**; their state changes must not be
+mapped to Italian FatturaPA cancellation, EN 16931 correction semantics, or
+any jurisdiction's legal effects. They are not used by the new credit-note
+correlation tests. Removing those legacy operations is a separate migration
+decision; the production interpretation is not changed by this experiment.
+
+Reference cases: EN 16931/Peppol preceding-invoice groups and Italy's
+separate credit-note / new-invoice workflow, suggested independently on
+[UCP #927](https://github.com/Universal-Commerce-Protocol/ucp/discussions/927).
+No tax-authority validation or Core EP is claimed.

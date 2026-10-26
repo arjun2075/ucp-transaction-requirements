@@ -28,6 +28,7 @@ def fixture_document(document_id="doc1", replaces=None):
     }
     if replaces:
         document["replaces"] = replaces
+    document["invoice_number"] = f"INV-{document_id}"
     return document, content
 
 
@@ -171,6 +172,65 @@ class FiscalDocumentLedgerTests(unittest.TestCase):
         replacement, content = event("evt-replace", "replace", 1, "doc2", "doc1")
         with self.assertRaises(FiscalLedgerError):
             self.apply(replacement, content)
+
+    def test_credit_note_issued_without_canceling_original(self):
+        first = self.issue()
+        self.assertEqual(first["com.example.fiscal_documents"]["documents"][0]["state"], "issued")
+        value, content = event("evt-credit", "issue", 1, "credit1")
+        value["document"]["document_type"] = "credit_note"
+        value["document"]["adjustment_id"] = "adj1"
+        value["document"]["preceding_documents"] = [{"document_id": "doc1", "invoice_number": "INV-doc1"}]
+        value["order_adjustments"] = [{
+            "id": "adj1", "type": "credit", "status": "completed",
+            "occurred_at": "2026-10-24T18:05:00Z",
+        }]
+        result = self.apply(value, content)
+        docs = result["com.example.fiscal_documents"]["documents"]
+        self.assertEqual([d["state"] for d in docs], ["issued", "issued"])
+        self.assertEqual(docs[1]["adjustment_id"], "adj1")
+        self.assertEqual(docs[1]["preceding_documents"][0]["invoice_number"], "INV-doc1")
+        self.assertEqual(result["adjustments"][0]["id"], "adj1")
+
+    def test_multiple_documents_can_point_to_one_adjustment(self):
+        self.issue()
+        adjustments = [{"id": "adj1", "type": "credit", "status": "completed",
+                        "occurred_at": "2026-10-24T18:05:00Z"}]
+        for revision, name in [(1, "credit1"), (2, "newinvoice")]:
+            value, content = event("evt-" + name, "issue", revision, name)
+            value["document"]["adjustment_id"] = "adj1"
+            value["document"]["preceding_documents"] = [{"document_id": "doc1", "invoice_number": "INV-doc1"}]
+            value["order_adjustments"] = adjustments
+            self.apply(value, content)
+        documents = self.ledger.snapshot()["com.example.fiscal_documents"]["documents"]
+        self.assertEqual([d.get("adjustment_id") for d in documents], [None, "adj1", "adj1"])
+
+    def test_adjustment_without_document_is_valid(self):
+        adjustments = [{"id": "adj-no-doc", "type": "refund", "status": "pending",
+                        "occurred_at": "2026-10-24T18:05:00Z"}]
+        result = self.ledger.snapshot(order_adjustments=adjustments)
+        self.assertEqual(result["com.example.fiscal_documents"]["revision"], 0)
+        self.assertEqual(result["com.example.fiscal_documents"]["documents"], [])
+        self.assertEqual(result["adjustments"], adjustments)
+
+    def test_unknown_adjustment_or_bad_local_predecessor_rolled_back(self):
+        self.issue()
+        value, content = event("evt-bad", "issue", 1, "credit1")
+        value["document"]["adjustment_id"] = "missing"
+        with self.assertRaises(FiscalLedgerError):
+            self.apply(value, content)
+        del value["document"]["adjustment_id"]
+        value["document"]["preceding_documents"] = [{"document_id": "doc1", "invoice_number": "wrong"}]
+        with self.assertRaises(FiscalLedgerError):
+            self.apply(value, content)
+        self.assertEqual(self.ledger.snapshot()["com.example.fiscal_documents"]["revision"], 1)
+
+    def test_external_preceding_invoice_reference_is_supported(self):
+        value, content = event("evt-external", "issue", 0, "credit1")
+        value["document"]["preceding_documents"] = [{
+            "invoice_number": "EXT-31", "issue_date": "2026-10-22",
+        }]
+        result = self.apply(value, content)
+        self.assertEqual(result["com.example.fiscal_documents"]["documents"][0]["preceding_documents"][0]["invoice_number"], "EXT-31")
 
     def test_authenticated_retrieval_checks_identity_and_integrity(self):
         _, content = event("evt-issue", "issue", 0)
